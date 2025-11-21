@@ -5,17 +5,18 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 import solarsync.dashboard.solarsynbackend.entities.User;
+
 import java.security.Key;
 import java.util.Date;
 
 @Service
 public class JwtService {
 
-    // generate this with some random generator, keep it secret
+    // TODO: replace by a real Base64 secret in prod
     private static final String SECRET_KEY =
             "c9b41c86a1ed4e83a320c8e9b8f7a64bc9d3e5eac9b41c86a1ed4e83a320c8e9";
 
-    // 24h token
+    // 24h
     private static final long EXPIRATION_MS = 24 * 60 * 60 * 1000;
 
     private Key getSigningKey() {
@@ -29,19 +30,34 @@ public class JwtService {
 
         return Jwts.builder()
                 .setSubject(user.getEmail())
+                .claim("stationId", user.getStationId())
+                .claim("firstName", user.getFirstName())
+                .claim("lastName", user.getLastName())
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String extractEmail(String token) {
+
+    private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
+    }
+
+    public String extractEmail(String token) {
+        return extractAllClaims(token).getSubject();
+    }
+
+    public String extractStationId(String token) {
+        return extractAllClaims(token).get("stationId", String.class);
+    }
+
+    public String extractRole(String token) {
+        return extractAllClaims(token).get("role", String.class);
     }
 
     public boolean isTokenValid(String token, User user) {
@@ -50,12 +66,7 @@ public class JwtService {
     }
 
     private boolean isTokenExpired(String token) {
-        Date expiration = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration();
+        Date expiration = extractAllClaims(token).getExpiration();
         return expiration.before(new Date());
     }
 }

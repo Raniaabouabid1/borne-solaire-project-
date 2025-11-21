@@ -33,6 +33,7 @@ public class SolarSynBackendApplication {
                         .maxVoltage(12.0)
                         .occupiedSockets(0)
                         .stateOfCharge(100.0)
+                        .maxVoltage(12.0)
                         .voltage(12.0)
                         .lastUpdate(null)
                         .build();
@@ -46,8 +47,8 @@ public class SolarSynBackendApplication {
                         .firstName("Rania")
                         .lastName("Bouabid")
                         .email("rania@solarsync.app")
-                        .password("Password@123")  
-                        .stationId(station.getId())
+                        .password("Password@123")
+                        .stationId(String.valueOf(station.getId()))
                         .build();
 
                 User u2 = User.builder()
@@ -55,7 +56,7 @@ public class SolarSynBackendApplication {
                         .lastName("Durand")
                         .email("alice@solarsync.app")
                         .password("Password@123")
-                        .stationId(station.getId())
+                        .stationId(String.valueOf(station.getId()))
                         .build();
 
                 User u3 = User.builder()
@@ -63,7 +64,7 @@ public class SolarSynBackendApplication {
                         .lastName("Martin")
                         .email("bob@solarsync.app")
                         .password("Password@123")
-                        .stationId(station.getId())
+                        .stationId(String.valueOf(station.getId()))
                         .build();
 
                 userRepository.saveAll(List.of(u1, u2, u3));
